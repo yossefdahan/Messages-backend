@@ -103,24 +103,28 @@ async function emitToUser({ type, data, userId }) {
 // If possible, send to all sockets BUT not the current socket 
 // Optionally, broadcast to a room / to all
 async function broadcast({ type, data, room = null, userId }) {
-    userId = userId.toString();
+    if (userId) {
+        userId = userId.toString(); // Only call toString if userId is defined
+    }
 
-    logger.info(`Broadcasting event: ${type}`);
-    const excludedSocket = await _getUserSocket(userId);
+    logger.info(`Broadcasting event: ${type} to room: ${room}`);
+    const excludedSocket = userId ? await _getUserSocket(userId) : null;
     if (room && excludedSocket) {
         logger.info(`Broadcast to room ${room} excluding user: ${userId}`);
         excludedSocket.broadcast.to(room).emit(type, data);
-    } else if (excludedSocket) {
-        logger.info(`Broadcast to all excluding user: ${userId}`);
-        excludedSocket.broadcast.emit(type, data);
     } else if (room) {
         logger.info(`Emit to room: ${room}`);
         gIo.to(room).emit(type, data);
+    } else if (excludedSocket) {
+        logger.info(`Broadcast to all excluding user: ${userId}`);
+        excludedSocket.broadcast.emit(type, data);
     } else {
         logger.info(`Emit to all`);
         gIo.emit(type, data);
     }
 }
+
+
 
 async function _getUserSocket(userId) {
     const sockets = await _getAllSockets();
@@ -143,7 +147,10 @@ async function _printSockets() {
 function _printSocket(socket) {
     console.log(`Socket - socketId: ${socket.id} userId: ${socket.userId}`);
 }
-
+function broadcastToRoom(type, data, room) {
+    logger.info(`Broadcasting event: ${type} to room: ${room}`);
+    gIo.to(room).emit(type, data);
+}
 export const socketService = {
     // set up the sockets service and define the API
     setupSocketAPI,
@@ -154,4 +161,5 @@ export const socketService = {
     // Send to all sockets BUT not the current socket - if found
     // (otherwise broadcast to a room / to all)
     broadcast,
+    broadcastToRoom,
 };
