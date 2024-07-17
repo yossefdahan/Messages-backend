@@ -16,11 +16,9 @@ export async function handleChatMessage(req, res) {
 
 export async function handleLearnMessage(req, res) {
     const { question, answer, room } = req.body;
-    console.log("Received learning request:", question, answer);
     if (!question || !answer) return res.status(400).send('Question and answer are required');
     try {
         await saveKnowledgeBase(question, answer);
-        console.log("Learning response saved:", question, answer);
 
         // Broadcast the learning response to the room
         socketService.broadcast({ type: 'chat-add-msg', data: { from: 'Bot', txt: `Learned new response for "${question}"`, room }, room });

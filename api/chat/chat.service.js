@@ -5,7 +5,6 @@ let knowledgeBase = {};
 
 export async function handleUserMessage(message) {
     const userMessage = message.toLowerCase();
-    console.log(userMessage);
     // Learning mechanism
     if (userMessage.startsWith('learn:')) {
         const [key, value] = userMessage.substring(6).split('::');
@@ -20,11 +19,10 @@ export async function handleUserMessage(message) {
 
     // Check if the message exists in the knowledge base
     if (knowledgeBase[userMessage]) {
-        console.log("knowledgeBase[userMessage]", knowledgeBase[userMessage]);
         return knowledgeBase[userMessage];
     }
 
-    return 'I am here to help you!';
+    return 'I dont know that yet..., but i can learn it for you!. all you need is to write learn:<question>::<response> and i will remember it!';
 }
 
 export async function loadKnowledgeBase() {
