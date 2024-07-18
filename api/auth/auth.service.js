@@ -15,12 +15,12 @@ export const authService = {
 
 async function login(username, password) {
     logger.debug(`auth.service - login with username: ${username}`)
-
+    console.log("#@#@#@#", username, password)
     const user = await userService.getByUsername(username)
     if (!user) throw 'Invalid username or password'
-    // TODO: un-comment for real login
-    // const match = await bcrypt.compare(password, user.password)
-    // if (!match) return Promise.reject('Invalid username or password')
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) throw 'Invalid username or password'
 
     delete user.password
     user._id = user._id.toString()
@@ -56,8 +56,3 @@ function validateToken(loginToken) {
     }
     return null
 }
-
-// ;(async ()=>{
-//     await signup('bubu', '123', 'Bubu Bi')
-//     await signup('mumu', '123', 'Mumu Maha')
-// })()

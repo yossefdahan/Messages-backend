@@ -1,7 +1,5 @@
-import {userService} from './user.service.js'
-import {logger} from '../../services/logger.service.js'
-import {socketService} from '../../services/socket.service.js'
-
+import { userService } from './user.service.js'
+import { logger } from '../../services/logger.service.js'
 export async function getUser(req, res) {
     try {
         const user = await userService.getById(req.params.id)
@@ -16,7 +14,6 @@ export async function getUsers(req, res) {
     try {
         const filterBy = {
             txt: req.query?.txt || '',
-            minBalance: +req.query?.minBalance || 0
         }
         const users = await userService.query(filterBy)
         res.send(users)
