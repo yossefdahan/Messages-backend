@@ -43,11 +43,6 @@ export function setupSocketAPI(server) {
             socket.broadcast.to(socket.myTopic).emit('chat-add-msg', msg);
         });
 
-        socket.on('user-watch', userId => {
-            logger.info(`user-watch from socket [id: ${socket.id}], on user ${userId}`);
-            socket.join('watching:' + userId);
-        });
-
         socket.on('set-user-socket', user => {
             logger.info(`Setting socket.userId = ${user._id} and socket.fullname = ${user.fullname} for socket [id: ${socket.id}]`);
             socket.userId = user._id;
@@ -100,11 +95,9 @@ async function emitToUser({ type, data, userId }) {
     }
 }
 
-// If possible, send to all sockets BUT not the current socket 
-// Optionally, broadcast to a room / to all
 async function broadcast({ type, data, room = null, userId }) {
     if (userId) {
-        userId = userId.toString(); // Only call toString if userId is defined
+        userId = userId.toString()
     }
 
     logger.info(`Broadcasting event: ${type} to room: ${room}`);
@@ -124,8 +117,6 @@ async function broadcast({ type, data, room = null, userId }) {
     }
 }
 
-
-
 async function _getUserSocket(userId) {
     const sockets = await _getAllSockets();
     const socket = sockets.find(s => s.userId === userId);
@@ -133,33 +124,23 @@ async function _getUserSocket(userId) {
 }
 
 async function _getAllSockets() {
-    // return all Socket instances
     const sockets = await gIo.fetchSockets();
     return sockets;
-}
-
-async function _printSockets() {
-    const sockets = await _getAllSockets();
-    console.log(`Sockets: (count: ${sockets.length}):`);
-    sockets.forEach(_printSocket);
 }
 
 function _printSocket(socket) {
     console.log(`Socket - socketId: ${socket.id} userId: ${socket.userId}`);
 }
+
 function broadcastToRoom(type, data, room) {
     logger.info(`Broadcasting event: ${type} to room: ${room}`);
     gIo.to(room).emit(type, data);
 }
+
 export const socketService = {
-    // set up the sockets service and define the API
     setupSocketAPI,
-    // emit to everyone / everyone in a specific room (label)
     emitTo,
-    // emit to a specific user (if currently active in system)
     emitToUser,
-    // Send to all sockets BUT not the current socket - if found
-    // (otherwise broadcast to a room / to all)
     broadcast,
     broadcastToRoom,
 };
